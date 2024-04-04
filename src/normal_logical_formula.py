@@ -44,6 +44,9 @@ class NormalLogicalFormula:
             result |= conjuent(**kwargs)
         return result
 
+    def __len__(self):
+        return len(self._conjuents)
+
     def __iter__(self):
         return iter(self._conjuents)
 
