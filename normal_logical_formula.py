@@ -1,4 +1,4 @@
-from conjuent import Subformula
+from conjuent import Conjuent
 
 
 class NormalLogicalFormula:
@@ -17,10 +17,10 @@ class NormalLogicalFormula:
                     return False
         return True
 
-    def add(self, subformula: Subformula):
+    def add(self, subformula: Conjuent):
         self._subformulas.add(subformula)
 
-    def remove(self, value: Subformula):
+    def remove(self, value: Conjuent):
         if value not in range(0, len(self._subformulas)):
             raise ValueError(f"No subformula {value} in the formula {self}")
         self._subformulas.remove(value)

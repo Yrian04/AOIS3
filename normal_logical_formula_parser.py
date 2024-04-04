@@ -1,5 +1,5 @@
 from normal_logical_formula import NormalLogicalFormula
-from conjuent import Subformula
+from conjuent import Conjuent
 
 
 class NormalLogicalFormulaParser:
@@ -14,8 +14,8 @@ class NormalLogicalFormulaParser:
             full_formula.add(self.__parse_subformula(subformula))
         return full_formula
 
-    def __parse_subformula(self, string: str) -> Subformula:
-        subformula = Subformula()
+    def __parse_subformula(self, string: str) -> Conjuent:
+        subformula = Conjuent()
         for arg in string[1:-1].split(self._internal_operation_symbol):
             if arg.startswith(self._negative_symbol):
                 subformula.add(arg[1:], False)
