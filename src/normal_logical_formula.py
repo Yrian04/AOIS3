@@ -35,12 +35,13 @@ class NormalLogicalFormula:
                 args.add(arg)
         return args
 
-    def __call__(self, *args) -> bool:
+    def __call__(self, **kwargs) -> bool:
         for arg in self.arguments:
-            raise ValueError(f"No {arg} in arguments")
+            if arg not in kwargs:
+                raise ValueError(f"No argument {arg}")
         result = False
         for conjuent in self:
-            result |= conjuent(*args)
+            result |= conjuent(**kwargs)
         return result
 
     def __iter__(self):

@@ -41,11 +41,11 @@ class Conjuent:
             raise ValueError(f"No argument {arg} in the subformula {self}")
         self._args.remove(arg)
 
-    def __call__(self, *args) -> bool:
+    def __call__(self, **kwargs) -> bool:
+        for arg in self.names_of_arguments:
+            if arg not in kwargs:
+                raise ValueError(f"No argument {arg}")
         result = True
-        if len(args) < len(self):
-            raise ValueError(f"Not enough values")
-        kwargs = dict(zip(self.names_of_arguments, args))
         for arg in self.names_of_arguments:
             result &= kwargs[arg] if dict(self.arguments)[arg] else not kwargs[arg]
         return result
