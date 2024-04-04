@@ -7,7 +7,7 @@ class Conjuent:
     """
     join_str = ", "
 
-    def __init__(self, *, args: Iterable[(str, bool)] = ()):
+    def __init__(self, *, args: Iterable[tuple[str, bool]] = ()):
         self._args: set[(str, bool)] = set(args)
 
     @property

@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from conjuent import Conjuent
+from src.conjuent import Conjuent
 
 
 class NormalLogicalFormula:
@@ -23,7 +23,7 @@ class NormalLogicalFormula:
         self._conjuents.add(conjuent)
 
     def remove(self, value: Conjuent):
-        if value not in range(0, len(self._conjuents)):
+        if value not in self._conjuents:
             raise ValueError(f"No subformula {value} in the formula {self}")
         self._conjuents.remove(value)
 
