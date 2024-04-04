@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from conjuent import Conjuent
 
 
@@ -6,8 +8,8 @@ class NormalLogicalFormula:
     """
     Abstract class for CNF and DNF
     """
-    def __init__(self, *, subformulas=()):
-        self._subformulas = set(subformulas)
+    def __init__(self, *, conjuents: Iterable[Conjuent] = ()):
+        self._conjuents: set[Conjuent] = set(conjuents)
 
     @property
     def is_full(self):
@@ -17,27 +19,35 @@ class NormalLogicalFormula:
                     return False
         return True
 
-    def add(self, subformula: Conjuent):
-        self._subformulas.add(subformula)
+    def add(self, conjuent: Conjuent):
+        self._conjuents.add(conjuent)
 
     def remove(self, value: Conjuent):
-        if value not in range(0, len(self._subformulas)):
+        if value not in range(0, len(self._conjuents)):
             raise ValueError(f"No subformula {value} in the formula {self}")
-        self._subformulas.remove(value)
+        self._conjuents.remove(value)
 
     @property
     def arguments(self):
         args = set()
-        for subformula in self._subformulas:
-            for arg, _ in subformula:
+        for conjuent in self._conjuents:
+            for arg, _ in conjuent:
                 args.add(arg)
         return args
 
+    def __call__(self, *args) -> bool:
+        for arg in self.arguments:
+            raise ValueError(f"No {arg} in arguments")
+        result = False
+        for conjuent in self:
+            result |= conjuent(*args)
+        return result
+
     def __iter__(self):
-        return iter(self._subformulas)
+        return iter(self._conjuents)
 
     def __copy__(self):
-        return NormalLogicalFormula(subformulas=self._subformulas)
+        return NormalLogicalFormula(conjuents=self._conjuents)
 
     def __str__(self):
-        return self.join_str.join(f"({x})" for x in self._subformulas)
+        return self.join_str.join(f"({x})" for x in self._conjuents)

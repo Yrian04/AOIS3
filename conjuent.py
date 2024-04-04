@@ -1,11 +1,14 @@
+from typing import Iterable
+
+
 class Conjuent:
     """
     Class for conjunctions in FCNF or disjunctions in FDNF
     """
     join_str = ", "
 
-    def __init__(self, *, args=()):
-        self._args = set(args)
+    def __init__(self, *, args: Iterable[(str, bool)] = ()):
+        self._args: set[(str, bool)] = set(args)
 
     @property
     def names_of_arguments(self) -> set:
@@ -37,6 +40,15 @@ class Conjuent:
         if arg not in self._args:
             raise ValueError(f"No argument {arg} in the subformula {self}")
         self._args.remove(arg)
+
+    def __call__(self, *args) -> bool:
+        result = True
+        if len(args) < len(self):
+            raise ValueError(f"Not enough values")
+        kwargs = dict(zip(self.names_of_arguments, args))
+        for arg in self.names_of_arguments:
+            result &= kwargs[arg] if dict(self.arguments)[arg] else not kwargs[arg]
+        return result
 
     def __eq__(self, other):
         return self._args == other._args
