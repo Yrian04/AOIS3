@@ -89,6 +89,11 @@ class KarnaughMap:
         self._map.append(item)
 
     def find_max_edges(self):
+        if self.row_count == 1 and self.column_count == 1:
+            if self._map[0][0]:
+                return [self]
+            else:
+                return []
         edges = self.__find_true_edges()
         edges.sort(key=lambda x: x.__weight())
         intersected_edges = [x for x in edges if not any(y != x and x in y for y in edges)]
