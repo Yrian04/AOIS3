@@ -71,6 +71,8 @@ class Conjuent:
     def __contains__(self, item):
         if isinstance(item, Conjuent):
             return item._args.issubset(self._args)
+        if isinstance(item, str):
+            return item in self.names_of_arguments
         return item in self._args
 
     def __str__(self) -> str:
