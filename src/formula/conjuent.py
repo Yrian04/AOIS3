@@ -42,7 +42,7 @@ class Conjuent:
         self._args.remove(arg)
 
     def print(self, symbol: str) -> str:
-        return symbol.join('' if x[1] else '!' + x[0] for x in self._args)
+        return symbol.join(('' if x[1] else '!') + x[0] for x in self._args)
 
     def __call__(self, **kwargs) -> bool:
         for arg in self.names_of_arguments:
