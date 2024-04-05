@@ -1,5 +1,5 @@
-from src.normal_logical_formula import NormalLogicalFormula
-from src.conjuent import Conjuent
+from src.formula.normal_logical_formula import NormalLogicalFormula
+from src.formula.conjuent import Conjuent
 
 
 class NormalLogicalFormulaParser:

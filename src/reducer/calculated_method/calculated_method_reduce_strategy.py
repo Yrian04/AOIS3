@@ -1,16 +1,16 @@
 from copy import copy
 
-from src.normal_logical_formula import NormalLogicalFormula
-from src.reduce_normal_logical_formula_strategy import ReduceNormalLogicalFormulaStrategy
-from src.conjuent import Conjuent
+from src.formula.normal_logical_formula import NormalLogicalFormula
+from src.reducer.reduce_normal_logical_formula_strategy import ReduceNormalLogicalFormulaStrategy
+from src.formula.conjuent import Conjuent
 
 
-class CalculatedTableMethodReduceStrategy(ReduceNormalLogicalFormulaStrategy):
+class CalculatedMethodReduceStrategy(ReduceNormalLogicalFormulaStrategy):
     def reduce(self, formula: NormalLogicalFormula):
         reduced = copy(formula)
         for i in range(1, max(map(lambda x: len(x.arguments), formula))):
             reduced = self.__reduce(reduced)
-        self._remove_waste_implicants(formula, reduced)
+        self._remove_waste_implicants(reduced)
         return reduced
 
     def __reduce(self, formula: NormalLogicalFormula):
@@ -19,34 +19,25 @@ class CalculatedTableMethodReduceStrategy(ReduceNormalLogicalFormulaStrategy):
         return reduced_formula
 
     @classmethod
-    def _remove_waste_implicants(cls, formula: NormalLogicalFormula, reduce_formula: NormalLogicalFormula):
-        table = cls.__make_table(formula, reduce_formula)
-        for implicant, row in table.items():
-            for i, ceil in enumerate(row):
-                if ceil and cls.__process_ceil(i, implicant, reduce_formula, table):
-                   break
+    def _remove_waste_implicants(cls, formula):
+        args = list(formula.arguments)
+        args.sort()
+        for implicant in copy(formula):
+            formula_without_implicant = copy(formula)
+            formula_without_implicant.remove(implicant)
+
+            bits = [False] * len(args)
+            flag = True
+            while flag:
+                flag = not all(bits)
+                kwargs = dict(zip(args, bits))
+                if formula_without_implicant(**kwargs) != formula(**kwargs):
+                    break
+
+                cls._inc(bits)
             else:
+                formula.remove(implicant)
                 print(f"({implicant}) is waste")
-                reduce_formula.remove(implicant)
-
-    @classmethod
-    def __process_ceil(cls, i, implicant, reduce_formula, table):
-        for other_implicant in reduce_formula:
-            if other_implicant == implicant:
-                continue
-            if table[other_implicant][i]:
-                return False
-        return True
-
-    @classmethod
-    def __make_table(cls, formula, reduce_formula):
-        table = {}
-        for implicant in reduce_formula:
-            table[implicant] = []
-            for conjuent in formula:
-                table[implicant].append(implicant in conjuent)
-            print(f"({implicant}):".ljust(20), ' '.join(map(lambda x: '1' if x else '0', table[implicant])))
-        return table
 
     @staticmethod
     def _inc(bits):

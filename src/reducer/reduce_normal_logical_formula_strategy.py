@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.normal_logical_formula import NormalLogicalFormula
+from src.formula.normal_logical_formula import NormalLogicalFormula
 
 
 class ReduceNormalLogicalFormulaStrategy(ABC):

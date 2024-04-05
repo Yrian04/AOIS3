@@ -1,5 +1,5 @@
-from src.reduce_normal_logical_formula_strategy import ReduceNormalLogicalFormulaStrategy
-from src.normal_logical_formula import NormalLogicalFormula
+from src.reducer.reduce_normal_logical_formula_strategy import ReduceNormalLogicalFormulaStrategy
+from src.formula.normal_logical_formula import NormalLogicalFormula
 
 
 class NormalLogicalFormulaReducer:

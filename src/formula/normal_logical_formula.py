@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from src.conjuent import Conjuent
+from src.formula.conjuent import Conjuent
 
 
 class NormalLogicalFormula:
