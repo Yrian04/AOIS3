@@ -35,6 +35,9 @@ class NormalLogicalFormula:
                 args.add(arg)
         return args
 
+    def print(self, out_symbol: str, in_symbol: str):
+        return out_symbol.join(f"({x.print(in_symbol)})" for x in self._conjuents)
+
     def __call__(self, **kwargs) -> bool:
         for arg in self.arguments:
             if arg not in kwargs:

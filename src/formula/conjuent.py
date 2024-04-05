@@ -41,6 +41,9 @@ class Conjuent:
             raise ValueError(f"No argument {arg} in the subformula {self}")
         self._args.remove(arg)
 
+    def print(self, symbol: str) -> str:
+        return symbol.join('' if x[1] else '!' + x[0] for x in self._args)
+
     def __call__(self, **kwargs) -> bool:
         for arg in self.names_of_arguments:
             if arg not in kwargs:
