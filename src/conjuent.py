@@ -66,7 +66,9 @@ class Conjuent:
         return hash(str(self))
 
     def __contains__(self, item):
-        return self._args.issubset(item._args)
+        if isinstance(item, Conjuent):
+            return item._args.issubset(self._args)
+        return item in self._args
 
     def __str__(self) -> str:
         return self.join_str.join([f"!{x[0]}" if not x[1] else x[0] for x in self._args])
