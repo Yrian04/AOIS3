@@ -10,11 +10,11 @@ class CalculatedMethodReduceStrategy(ReduceNormalLogicalFormulaStrategy):
         reduced = copy(formula)
         for i in range(1, max(map(lambda x: len(x.arguments), formula))):
             reduced = self.__reduce(reduced)
+        self._remove_waste_implicants(reduced)
         return reduced
 
     def __reduce(self, formula: NormalLogicalFormula):
         reduced_formula = self._combine_conjuents(formula)
-        self._remove_waste_implicants(reduced_formula)
 
         return reduced_formula
 
@@ -27,7 +27,9 @@ class CalculatedMethodReduceStrategy(ReduceNormalLogicalFormulaStrategy):
             formula_without_implicant.remove(implicant)
 
             bits = [False] * len(args)
-            while not all(bits):
+            flag = True
+            while flag:
+                flag = not all(bits)
                 kwargs = dict(zip(args, bits))
                 if formula_without_implicant(**kwargs) != formula(**kwargs):
                     break
