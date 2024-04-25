@@ -2,7 +2,7 @@ import unittest
 
 from src.formula.normal_logical_formula import NormalLogicalFormula
 from src.formula.conjuent import Conjuent
-from src.reducer.calculated_table_method.calculated_table_method_reduce_strategy import  CalculatedTableMethodReduceStrategy
+from src.reducer.calculated_table_method.calculated_table_method_reduce_strategy import CalculatedTableMethodReduceStrategy
 
 
 class TestCalculatedTableMethodReduceStrategy(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestCalculatedTableMethodReduceStrategy(unittest.TestCase):
         ])
         strategy = CalculatedTableMethodReduceStrategy()
         reduced = strategy.reduce(formula)
-        self.assertEqual(reduced.is_full, False)
+        self.assertEqual(reduced.is_full_of_true, False)
         self.assertEqual(reduced.arguments, {'a', 'b', 'c'})
 
     def test_make_table(self):

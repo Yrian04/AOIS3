@@ -1,28 +1,11 @@
 from __future__ import annotations
 
 import itertools
-import math
 
 from src.formula.normal_logical_formula import NormalLogicalFormula
 from src.formula.conjuent import Conjuent
+from src.reducer.table_method.karnauhg_map.karnaugh_map_ceil import KarnaughMapCeil
 import src.utils as utils
-
-
-class KarnaughMapCeil:
-    def __init__(self, value: bool = False):
-        self.value = value
-
-    def set(self, item: bool):
-        self.value = item
-
-    def __bool__(self) -> bool:
-        return self.value
-
-    def __str__(self):
-        if self:
-            return '1'
-        else:
-            return '0'
 
 
 class KarnaughMap:
@@ -30,7 +13,7 @@ class KarnaughMap:
         self._parent = parent
         self._map: list[list[KarnaughMapCeil]] = []
         self._row_vars: list[str] = []
-        self._columns_vars: list[str] = []
+        self._column_vars: list[str] = []
         self._processed_edge: list[KarnaughMap] = []
 
     def build(self, formula: NormalLogicalFormula) -> None:
@@ -44,11 +27,11 @@ class KarnaughMap:
             if i >= len(args)//2:
                 self._row_vars.append(arg)
             else:
-                self._columns_vars.append(arg)
+                self._column_vars.append(arg)
 
         # fill the map
         n = len(args)
-        rows = 2**len(self._columns_vars)
+        rows = 2**len(self._column_vars)
         columns = 2**len(self._row_vars)
         self._map = [[KarnaughMapCeil() for _ in range(columns)] for _ in range(rows)]
         for subformula in formula:
@@ -63,7 +46,7 @@ class KarnaughMap:
 
     @property
     def column_vars(self) -> list[str]:
-        return self._columns_vars.copy()
+        return self._column_vars.copy()
 
     @property
     def vars(self):
@@ -79,14 +62,22 @@ class KarnaughMap:
             return 0
         return len(self[0])
 
-    def is_full(self) -> bool:
+    def is_full_of_true(self) -> bool:
         return all([all(x) for x in self])
 
     def is_full_of_false(self) -> bool:
         return not any([any(x) for x in self])
 
-    def _append(self, item: list[KarnaughMapCeil]) -> None:
+    def append(self, item: list[KarnaughMapCeil]) -> None:
         self._map.append(item)
+
+    @staticmethod
+    def _remove_included_edges(edges: list[KarnaughMap]):
+        return [x for x in edges if not any(y != x and x in y for y in sorted(edges, key=lambda x: x.__weight()))]
+
+    @staticmethod
+    def _remove_useless_edges(edges: list[KarnaughMap]):
+        return [x for x in edges if any(any(all(y is x or ceil not in y for y in edges) for ceil in row) for row in x)]
 
     def find_max_edges(self):
         if self.row_count == 1 and self.column_count == 1:
@@ -95,19 +86,22 @@ class KarnaughMap:
             else:
                 return []
         edges = self.__find_true_edges()
-        edges.sort(key=lambda x: x.__weight())
-        intersected_edges = [x for x in edges if not any(y != x and x in y for y in edges)]
-        max_edges = []
-        for x in intersected_edges:
-            for row in x:
-                for ceil in row:
-                    for y in intersected_edges:
-                        if y != x and ceil in y:
-                            break
-                    else:
-                        if x not in max_edges:
-                            max_edges.append(x)
-        return max_edges
+        intersected_edges = self._remove_included_edges(edges)
+        # max_edges = []
+        # processed_edges = []
+        # for x in intersected_edges:
+        #     for row in x:
+        #         for ceil in row:
+        #             for y in intersected_edges:
+        #                 if y in processed_edges and y not in max_edges:
+        #                     continue
+        #                 if ceil in y:
+        #                     break
+        #             else:
+        #                 max_edges.append(x)
+        #                 break
+        # return max_edges
+        return self._remove_useless_edges(intersected_edges)
 
     def get_implicant(self) -> Conjuent:
         if self._parent is None:
@@ -127,7 +121,7 @@ class KarnaughMap:
             if ceil in row:
                 row_index = utils.to_gray(i)
                 column_index = utils.to_gray(row.index(ceil))
-                return (row_index << len(self._columns_vars)) + column_index
+                return (row_index << len(self.row_vars)) + column_index
 
     def __weight(self):
         weight = 0
@@ -142,7 +136,7 @@ class KarnaughMap:
         # print('-'*self.column_count)
         if not self or self.is_full_of_false():
             return []
-        if self.is_full():
+        if self.is_full_of_true():
             return [self]
         edges: list[KarnaughMap] = []
         for edge in self.__get_edges(self._parent if self._parent else self):
@@ -151,15 +145,34 @@ class KarnaughMap:
                 edges += edge.__find_true_edges()
         return edges
 
+    @classmethod
+    def _create_empty_edge(cls, parent):
+        return cls(parent)
+
     def __get_edges(self, parent: KarnaughMap | None) -> list[KarnaughMap]:
         edges: list[KarnaughMap] = []
 
-        # x edges
-        for (c, var), module in itertools.product(enumerate(self._row_vars), [False, True]):
-            edge = KarnaughMap(parent)
+        # y edges
+        for (c, var), module in itertools.product(enumerate(self._column_vars), (False, True)):
+            edge = self._create_empty_edge(parent)
 
             # add vars in map
-            edge._columns_vars = self._columns_vars
+            edge._row_vars = self._row_vars
+            for column_var in self._column_vars:
+                if column_var != var:
+                    edge._column_vars.append(column_var)
+
+            for i, row in enumerate(self):
+                if bool(utils.to_gray(i) & (1 << (len(self._column_vars) - 1 - c))) == module:
+                    edge.append(row)
+            edges.append(edge)
+
+        # x edges
+        for (c, var), module in itertools.product(enumerate(self._row_vars), [False, True]):
+            edge = self._create_empty_edge(parent)
+
+            # add vars in map
+            edge._column_vars = self._column_vars
             for row_var in self._row_vars:
                 if row_var != var:
                     edge._row_vars.append(row_var)
@@ -169,22 +182,7 @@ class KarnaughMap:
                 for j, ceil in enumerate(row):
                     if bool(utils.to_gray(j) & (1 << (len(self._row_vars) - 1 - c))) == module:
                         edge_row.append(ceil)
-                edge._append(edge_row)
-            edges.append(edge)
-
-        # y edges
-        for (c, var), module in itertools.product(enumerate(self._columns_vars), (False, True)):
-            edge = KarnaughMap(parent)
-
-            # add vars in map
-            edge._row_vars = self._row_vars
-            for column_var in self._columns_vars:
-                if column_var != var:
-                    edge._columns_vars.append(column_var)
-
-            for i, row in enumerate(self):
-                if bool(utils.to_gray(i) & (1 << (len(self._columns_vars) - 1 - c))) == module:
-                    edge._append(row)
+                edge.append(edge_row)
             edges.append(edge)
 
         return edges
@@ -215,6 +213,17 @@ class KarnaughMap:
             raise IndexError("Index out of range")
         return self._map[item]
 
+    def __setitem__(self, key: int, value: KarnaughMapCeil):
+        if 0 < key < 1 << len(self.vars):
+            raise IndexError(f"Index {key} out of range")
+
+        index = utils.from_gray(key)
+
+        i = index & ((1 << self.column_count) - 1)
+        j = index & (((1 << self.row_count) - 1) << self.column_count)
+
+        self[i][j] = value
+
     def __bool__(self):
         return bool(self._map)
 
@@ -225,6 +234,15 @@ class KarnaughMap:
         if isinstance(other, KarnaughMap):
             return self in other and other in self
         return False
+
+    def __copy__(self):
+        result = KarnaughMap()
+        result._map = self._map.copy()
+        result._vars = self._vars.copy()
+        return result
+
+    def __len__(self):
+        return len(self._map)
 
     def __str__(self):
         if self._parent:

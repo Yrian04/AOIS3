@@ -1,3 +1,5 @@
+import re
+
 from typing import Iterable
 
 
@@ -28,7 +30,7 @@ class Conjuent:
         :param modality: if negative then false else true
         :raise ValueError
         """
-        if not argument.isalpha():
+        if not re.match(r"\w\d*", argument):
             raise ValueError(f"{argument} is not valid name for argument")
         self._args.add((argument, modality))
 
@@ -63,7 +65,7 @@ class Conjuent:
         return len(self._args)
 
     def __iter__(self):
-        return iter(self._args)
+        return iter(self._args.copy())
 
     def __hash__(self):
         return hash(str(self))

@@ -2,7 +2,7 @@ import unittest
 
 from src.formula.normal_logical_formula import NormalLogicalFormula
 from src.formula.conjuent import Conjuent
-from src.reducer.table_method.karnaugh_map import KarnaughMap
+from src.reducer.table_method.karnauhg_map.karnaugh_map import KarnaughMap
 
 
 class TestKarnaughMap(unittest.TestCase):
