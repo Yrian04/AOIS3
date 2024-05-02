@@ -14,9 +14,8 @@ class NormalLogicalFormula:
     @property
     def is_full(self):
         for subformula1 in self:
-            for subformula2 in self:
-                if subformula1.names_of_arguments != subformula2.names_of_arguments:
-                    return False
+            if subformula1.names_of_arguments != self.arguments:
+                return False
         return True
 
     def add(self, conjuent: Conjuent):

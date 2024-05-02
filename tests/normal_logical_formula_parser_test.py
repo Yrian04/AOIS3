@@ -13,7 +13,7 @@ class TestNormalLogicalFormulaParser(unittest.TestCase):
                                             negative_symbol='!')
         string = '(a,b)|(c,!d)|(e,f)'
         formula = parser.parse(string)
-        self.assertEqual(formula.is_full_of_true, False)
+        self.assertEqual(formula.is_full, False)
         self.assertEqual(formula.arguments, {'a', 'b', 'c', 'd', 'e', 'f'})
 
     def test_parse_subformula(self):

@@ -16,7 +16,7 @@ class TestCalculatedTableMethodReduceStrategy(unittest.TestCase):
         ])
         strategy = CalculatedTableMethodReduceStrategy()
         reduced = strategy.reduce(formula)
-        self.assertEqual(reduced.is_full_of_true, False)
+        self.assertEqual(reduced.is_full, False)
         self.assertEqual(reduced.arguments, {'a', 'b', 'c'})
 
     def test_make_table(self):
